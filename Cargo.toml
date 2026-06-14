@@ -1,0 +1,24 @@
+[package]
+name = "arch-pkg-remover"
+version = "0.2.0"
+edition = "2021"
+description = "Interactive TUI for safely removing Arch Linux packages, with dependency-aware dry runs and orphan detection"
+license = "MIT"
+repository = "https://github.com/TeddyBear/arch-pkg-remover"
+
+[[bin]]
+name = "apr"
+path = "src/main.rs"
+
+[dependencies]
+ratatui           = "0.29"
+crossterm         = "0.28"
+alpm              = "5"
+crossbeam-channel = "0.5"
+libc              = "0.2"
+anyhow            = "1.0"
+
+[profile.release]
+opt-level = 3
+lto       = true
+strip     = true

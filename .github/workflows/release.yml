@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    name: Build release binary
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel pacman rustup git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        run: |
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Build release binary
+        run: cargo build --release --verbose
+
+      - name: Strip and package binary
+        run: |
+          mkdir -p dist
+          cp target/release/apr dist/apr
+          strip dist/apr
+          tar -czf apr-${{ github.ref_name }}-x86_64-linux.tar.gz -C dist apr
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: apr-${{ github.ref_name }}-x86_64-linux.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
